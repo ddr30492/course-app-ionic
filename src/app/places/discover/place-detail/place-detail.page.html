@@ -1,9 +1,9 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/places/tab-places/discover"></ion-back-button>
+      <ion-back-button [defaultHref]="'/places/tab-places/discover' + place.id"></ion-back-button>
     </ion-buttons>
-    <ion-title>Place Details</ion-title>
+    <ion-title>{{place.title}}</ion-title>
   </ion-toolbar>
 </ion-header>
 

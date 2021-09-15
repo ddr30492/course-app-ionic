@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { NavController } from '@ionic/angular';
+import { Place } from '../../place.model';
+import { PlacesService } from '../../places.service';
 
 @Component({
   selector: 'app-edit-offer',
@@ -7,9 +11,18 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EditOfferPage implements OnInit {
 
-  constructor() { }
+  place: Place;
+
+  constructor(private route: ActivatedRoute, private navCtrl: NavController, private placeServices: PlacesService) { }
 
   ngOnInit() {
+    this.route.paramMap.subscribe(paramMap => {
+      if(!paramMap.has('placeId')){
+        this.navCtrl.navigateBack('/places/tab-places/offer');
+        return;
+      }
+      this.place = this.placeServices.getPlacesId(paramMap.get('placeId'));
+    });
   }
 
 }
