@@ -19,4 +19,9 @@ export class PlacesService {
   }
 
   constructor() { }
+
+  getPlacesId(id: string){
+    // eslint-disable-next-line no-underscore-dangle
+    return {...this._places.find(p => p.id === id)};
+  }
 }
