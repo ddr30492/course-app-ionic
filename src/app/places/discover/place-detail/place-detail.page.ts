@@ -1,6 +1,6 @@
 import { Component, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NavController, ModalController } from '@ionic/angular';
+import { NavController, ModalController, ActionSheetController } from '@ionic/angular';
 import { Place } from '../../place.model';
 import { PlacesService } from '../../places.service';
 import {CreateBookingComponent} from '../../../bookings/create-booking/create-booking.component';
@@ -18,7 +18,8 @@ export class PlaceDetailPage implements OnInit {
     private route: ActivatedRoute,
     private navController: NavController,
     private placeServices: PlacesService,
-    private modalCtrl: ModalController) { }
+    private modalCtrl: ModalController,
+    private actionSheetCtrl: ActionSheetController) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(paramMap => {
@@ -33,6 +34,28 @@ export class PlaceDetailPage implements OnInit {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   OnBookingPlace(){
     // this.navController.navigateBack('/places/tab-places/discover');
+    this.actionSheetCtrl.create({
+      header:'Choose an Action',
+      buttons:[
+        {
+          text: 'Select Date',
+          handler: () => this.onActionSheetCtrl('select')
+        },
+        {
+          text: 'Random Date',
+          handler: () => this.onActionSheetCtrl('random')
+        },
+        {
+          text: 'Cancel',
+          role: 'destructive'
+        }
+      ]
+    }).then(actionsheetEle => {
+      actionsheetEle.present();
+    });
+  }
+
+  onActionSheetCtrl(mode: 'select' | 'random'){
     this.modalCtrl.create({
       component: CreateBookingComponent,
       componentProps:{ selectedPlace: this.place}
@@ -46,5 +69,4 @@ export class PlaceDetailPage implements OnInit {
       }
     });
   }
-
 }
