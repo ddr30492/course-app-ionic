@@ -19,15 +19,7 @@
       <ion-col size="12" sizeSm="8" offsetSm="2" class="ion-text-center">
         <ion-list>
           <ion-item-sliding *ngFor="let placesitem of loadOffers" #slidingItem>
-            <ion-item [routerLink]="['/', 'places', 'tab-places', 'offer', placesitem.id]">
-              <ion-avatar slot="start">
-                <ion-img [src]="placesitem.imageURL"></ion-img>
-              </ion-avatar>
-              <ion-label>
-                <h2>{{placesitem.title}}</h2>
-                <p>{{placesitem.description}}</p>
-              </ion-label>
-            </ion-item>
+            <app-offer-item [placesitem]="placesitem"></app-offer-item>
             <ion-item-options>
               <ion-item-option color="secondary" (click)="onEdit(placesitem.id, slidingItem)">
                 <ion-icon name="create" slot="icon-only"></ion-icon>
