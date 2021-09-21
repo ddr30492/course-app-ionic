@@ -7,10 +7,22 @@ import { Place } from './place.model';
 export class PlacesService {
 
   private _places: Place[] = [
-    new Place('p1','Manhattan Mansion', 'In the New York city',
-    'https://upload.wikimedia.org/wikipedia/commons/f/fc/2014_Morris-Jumel_Mansion_from_southwest.jpg', 300),
-    new Place('p2','L\'Amour Toujou', 'In the Paris city',
-    'https://upload.wikimedia.org/wikipedia/commons/f/fc/2014_Morris-Jumel_Mansion_from_southwest.jpg', 200),
+    new Place(
+      'p1',
+      'Manhattan Mansion',
+      'In the New York city',
+      'https://upload.wikimedia.org/wikipedia/commons/f/fc/2014_Morris-Jumel_Mansion_from_southwest.jpg',
+      300,
+      new Date('01 January 2021 14:48 UTC'),
+      new Date('31 December 2021 14:48 UTC')),
+    new Place(
+      'p2',
+      'L\'Amour Toujou',
+      'In the Paris city',
+      'https://upload.wikimedia.org/wikipedia/commons/f/fc/2014_Morris-Jumel_Mansion_from_southwest.jpg',
+      200,
+      new Date('01 January 2021 14:48 UTC'),
+      new Date('31 December 2021 14:48 UTC')),
   ];
 
   get places(){

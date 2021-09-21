@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
+import { NgForm } from '@angular/forms';
 import { AuthService } from './auth.service';
 
 @Component({
@@ -11,6 +12,7 @@ import { AuthService } from './auth.service';
 export class AuthPage implements OnInit {
 
   isLoading = false;
+  isLogin = true;
 
   constructor(
     private authService: AuthService,
@@ -21,6 +23,7 @@ export class AuthPage implements OnInit {
   ngOnInit() {
   }
 
+  /* login method for loading controller crrate and dismis on timeout */
   onLogin(){
     this.isLoading = true;
     this.authService.onLogin();
@@ -34,5 +37,26 @@ export class AuthPage implements OnInit {
         this.router.navigateByUrl('/places/tab-places/discover');
       }, 2000);
     });
+  }
+
+  onSwitchAuthMode(){
+    this.isLogin = !this.isLogin;
+  }
+
+  //on submit form ngform
+  onSubmit(form: NgForm){
+    if(!form.valid){
+      return true;
+    }
+
+    const email = form.value.email;
+    const password = form.value.password;
+    console.log(email, password);
+
+    if(this.isLogin){
+      //send request to the login server
+    }else{
+      //send request to the signup server
+    }
   }
 }

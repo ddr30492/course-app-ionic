@@ -1,10 +1,52 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Authentication</ion-title>
+    <ion-title>{{isLogin ? 'LogIn' : 'SignUp'}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <!-- <ion-spinner *ngIf="isLoading"></ion-spinner> -->
-  <ion-button class="ion-margin" (click)="onLogin()">Login</ion-button>
+  <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+    <ion-grid>
+      <ion-row>
+        <ion-col sizeSm="6" offsetSm="3">
+          <ion-list>
+            <ion-item>
+              <ion-label position="floating">Email</ion-label>
+              <!-- adding ngmodel along with name attribute and validation with required and email -->
+              <ion-input
+                type="email"
+                ngModel
+                name="email"
+                required
+                email
+                #emailController="ngModel"></ion-input>
+            </ion-item>
+            <ion-item *ngIf="!emailController.valid && emailController.touched" lines="none">
+              <ion-label>Should be enter valid email address</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Password</ion-label>
+              <ion-input
+                type="password"
+                ngModel
+                name="password"
+                required
+                minlength="6"
+                #passWordContoller="ngModel"></ion-input>
+            </ion-item>
+            <ion-item *ngIf="!passWordContoller.valid && passWordContoller.touched" lines="none">
+              <ion-label>Should be enter valid 6 digit password</ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col sizeSm="6" offsetSm="3">
+          <ion-button expand="block" fill="clear" expand="block" type="button" (click)="onSwitchAuthMode()">Switch to {{isLogin ? 'Login' : 'SignUp'}}</ion-button>
+          <ion-button expand="block" (click)="onLogin()" type="submit" [disabled]="!f.valid">Login</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 </ion-content>

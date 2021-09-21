@@ -58,8 +58,9 @@ export class PlaceDetailPage implements OnInit {
   onActionSheetCtrl(mode: 'select' | 'random'){
     this.modalCtrl.create({
       component: CreateBookingComponent,
-      componentProps:{ selectedPlace: this.place}
+      componentProps:{ selectedPlace: this.place, selectedMode: mode}
     }).then(modalEle => {
+      console.log(mode);
       modalEle.present();
       return modalEle.onDidDismiss();
     }).then(resultData => {
@@ -68,5 +69,6 @@ export class PlaceDetailPage implements OnInit {
         console.log('booked');
       }
     });
+    console.log(mode);
   }
 }
