@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { Place } from './place.model';
 
@@ -7,7 +9,7 @@ import { Place } from './place.model';
 })
 export class PlacesService {
 
-  private _places: Place[] = [
+  private _places = new BehaviorSubject<Place[]>([
     new Place(
       'p1',
       'Manhattan Mansion',
@@ -38,18 +40,18 @@ export class PlacesService {
       new Date('31 December 2021 14:48 UTC'),
       'xyz',
       ),
-  ];
+  ]);
 
   get places(){
     // eslint-disable-next-line no-underscore-dangle
-    return[...this._places];
+    return this._places.asObservable();
+    // return[...this._places];
   }
 
   constructor(private authService: AuthService) { }
 
   getPlacesId(id: string){
-    // eslint-disable-next-line no-underscore-dangle
-    return {...this._places.find(p => p.id === id)};
+    return this.places.pipe(take(1), map((placesss) => ({...placesss.find(p => p.id === id)})));
   }
 
   //create new dynamic methodfor add services
@@ -64,7 +66,10 @@ export class PlacesService {
       dateTo,
       this.authService.userID
     );
-    // eslint-disable-next-line no-underscore-dangle
-    this._places.push(newPlace);
+    // this._places.push(newPlace);
+    this.places.pipe(take(1)).subscribe((placesss) => {
+      // eslint-disable-next-line no-underscore-dangle
+      this._places.next(placesss.concat(newPlace));
+    });
   }
 }
