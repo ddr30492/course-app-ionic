@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import {IonItemSliding} from '@ionic/angular';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {IonItemSliding, LoadingController} from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { Booking } from './booking.model';
 import { BookingService } from './booking.service';
 
@@ -8,18 +9,33 @@ import { BookingService } from './booking.service';
   templateUrl: './bookings.page.html',
   styleUrls: ['./bookings.page.scss'],
 })
-export class BookingsPage implements OnInit {
+export class BookingsPage implements OnInit, OnDestroy {
 
   loadedBookings: Booking[];
+  private bookingSub: Subscription;
 
-  constructor(private bookingService: BookingService) { }
+  constructor(private bookingService: BookingService, private loadingCtrl: LoadingController) { }
 
   ngOnInit() {
-    this.loadedBookings = this.bookingService.bookingDetails;
+   this.bookingSub = this.bookingService.bookingDetails.subscribe(bookings => this.loadedBookings = bookings);
   }
 
   onCancelBooking(bookingId: string, slidingBooking: IonItemSliding){
     slidingBooking.close();
+    this.loadingCtrl.create({
+      message: 'Canceled Place...'
+    }).then(loadingEle => {
+      loadingEle.present();
+      this.bookingService.cancelBooking(bookingId).subscribe(() => {
+        loadingEle.dismiss();
+      });
+    });
+  }
+
+  ngOnDestroy(){
+    if(this.bookingSub){
+      this.bookingSub.unsubscribe();
+    }
   }
 
 }

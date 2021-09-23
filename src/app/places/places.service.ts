@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { delay, map, take, tap } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { Place } from './place.model';
 
@@ -28,7 +28,7 @@ export class PlacesService {
       200,
       new Date('01 January 2021 14:48 UTC'),
       new Date('31 December 2021 14:48 UTC'),
-      'xyz',
+      'abc',
       ),
     new Place(
       'p3',
@@ -38,7 +38,7 @@ export class PlacesService {
       200,
       new Date('01 January 2021 14:48 UTC'),
       new Date('31 December 2021 14:48 UTC'),
-      'xyz',
+      'abc',
       ),
   ]);
 
@@ -67,9 +67,33 @@ export class PlacesService {
       this.authService.userID
     );
     // this._places.push(newPlace);
-    this.places.pipe(take(1)).subscribe((placesss) => {
-      // eslint-disable-next-line no-underscore-dangle
-      this._places.next(placesss.concat(newPlace));
-    });
+    return this.places.pipe(take(1), delay(1000), tap((placesss) => {
+        // eslint-disable-next-line no-underscore-dangle
+        this._places.next(placesss.concat(newPlace));
+    }));
+  }
+
+  updatePlaces(placeID: string, title: string, description: string,){
+    return this.places.pipe(take(1), delay(1000), tap(placesE => {
+      const updatePlaceIndex = placesE.findIndex(pl => pl.id === placeID);
+      console.log(updatePlaceIndex);
+      const updatedPlaces = [...placesE];
+      console.log(updatedPlaces);
+      const oldPlace = updatedPlaces[updatePlaceIndex];
+      updatedPlaces[updatePlaceIndex] = new Place(
+        oldPlace.id,
+        title,
+        description,
+        oldPlace.imageURL,
+        oldPlace.price,
+        oldPlace.availabelFrom,
+        oldPlace.availableTo,
+        oldPlace.userID
+        );
+
+        // eslint-disable-next-line no-underscore-dangle
+        this._places.next(updatedPlaces);
+    }));
+
   }
 }

@@ -10,12 +10,15 @@
 <ion-content>
   <ion-grid>
     <ion-row>
-      <ion-col sizeMd="6" offsetMd="3">
+      <ion-col sizeSm="6" offsetSm="3" class="ion-text-center" *ngIf="!loadedBookings || loadedBookings.length <= 0">
+        <p>You dont have any booking yet...</p>
+      </ion-col>
+      <ion-col sizeSm="6" offsetSm="3" *ngIf="loadedBookings && loadedBookings.length > 0">
         <ion-list>
           <ion-item-sliding *ngFor="let booking of loadedBookings" #slidingBooking>
             <ion-item>
               <ion-label>
-                <h5>{{booking.placeTitle}}</h5>
+                <h5 class="name">{{ booking.placeTitle }}</h5>
                 <p>Guest: {{booking.guestNumber}}</p>
               </ion-label>
             </ion-item>
