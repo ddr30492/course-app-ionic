@@ -15,6 +15,8 @@ export class EditOfferPage implements OnInit, OnDestroy {
 
   place: Place;
   form: FormGroup;
+  placeId: string;
+  isLoading = false;
   private placeSub: Subscription;
 
 
@@ -31,19 +33,27 @@ export class EditOfferPage implements OnInit, OnDestroy {
         this.navCtrl.navigateBack('/places/tab-places/offer');
         return;
       }
+      this.placeId = paramMap.get('placeId');
+      console.log(this.placeId);
+      this.isLoading = true;
       // this.place = this.placeServices.getPlacesId(paramMap.get('placeId'));
-      this.placeSub = this.placeServices.getPlacesId(paramMap.get('placeId')).subscribe(placeE => this.place = placeE);
-
-      // set edit form controla
-      this.form = new FormGroup({
-        title: new FormControl(this.place.title, {
-          updateOn: 'blur',
-          validators: [Validators.required]
-        }),
-        description: new FormControl(this.place.description, {
-          updateOn: 'blur',
-          validators: [Validators.required, Validators.maxLength(180)]
-        })
+      this.placeSub = this.placeServices.getPlacesId(paramMap.get('placeId')).subscribe(placeE => {
+        console.log(this.place);
+        this.place = placeE;
+        console.log(this.place);
+        console.log(this.placeId);
+        // set edit form controla
+        this.form = new FormGroup({
+          title: new FormControl(this.place.title, {
+            updateOn: 'blur',
+            validators: [Validators.required]
+          }),
+          description: new FormControl(this.place.description, {
+            updateOn: 'blur',
+            validators: [Validators.required, Validators.maxLength(180)]
+          })
+        });
+        this.isLoading = false;
       });
     });
   }

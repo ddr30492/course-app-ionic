@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { delay, map, take, tap, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, of } from 'rxjs';
+import { delay, map, take, tap, switchMap, retryWhen } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { Place } from './place.model';
 
@@ -94,7 +94,19 @@ export class PlacesService {
   }
 
   getPlacesId(id: string){
-    return this.places.pipe(take(1), map((placesss) => ({...placesss.find(p => p.id === id)})));
+    // return this.places.pipe(take(1), map((placesss) => ({...placesss.find(p => p.id === id)})));
+    return this.http
+    .get<PlaceData>(`https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/offered-place/${id}.json`)
+    .pipe(map(placeData => new Place(
+        id,
+        placeData.title,
+        placeData.description,
+        placeData.imageURL,
+        placeData.price,
+        new Date(placeData.availabelFrom),
+        new Date(placeData.availableTo),
+        placeData.userID,
+    )));
   }
 
   //create new dynamic methodfor add services
@@ -137,13 +149,22 @@ export class PlacesService {
   }
 
   updatePlaces(placeID: string, title: string, description: string,){
+    console.log(placeID);
     let updatedPlaces: Place[];
     return this.places.pipe(
       take(1),
       switchMap((placesE) => {
-        const updatePlaceIndex = placesE.findIndex(pl => pl.id === placeID);
-        updatedPlaces = [...placesE];
+        if(!placesE || placesE.length <= 0){
+          return this.fetchPlaces();
+        }else{
+          return of(placesE);
+        }
+      }),
+      switchMap((places) => {
+        const updatePlaceIndex = places.findIndex(pl => pl.id === placeID);
+        updatedPlaces = [...places];
         const oldPlace = updatedPlaces[updatePlaceIndex];
+        console.log(oldPlace);
         updatedPlaces[updatePlaceIndex] = new Place(
           oldPlace.id,
           title,
