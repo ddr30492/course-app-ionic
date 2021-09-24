@@ -23,14 +23,22 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-grid *ngIf="!relevantPlaces || relevantPlaces.length <= 0">
+  <ion-grid *ngIf="isLoading">
+    <ion-row>
+      <ion-col size="12" sizeSm="8" offsetSm="2" class="ion-text-center">
+          <ion-spinner></ion-spinner>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid *ngIf="!isLoading && (!relevantPlaces || relevantPlaces.length <= 0)">
     <ion-row>
       <ion-col size="12" sizeSm="8" offsetSm="2" class="ion-text-center">
           <p>There are no bookable places right now, please come back later!</p>
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-grid *ngIf="relevantPlaces.length > 0">
+  <ion-grid *ngIf="!isLoading && relevantPlaces.length > 0">
     <ion-row>
       <ion-col size="12" sizeSm="8" offsetSm="2" class="ion-text-center">
         <ion-card>
@@ -57,7 +65,7 @@
     <ion-row>
       <ion-col size="12" sizeSm="8" offsetSm="2" class="ion-text-center">
         <ion-list>
-          <ion-item *ngFor="let placesitem of listedLoadedPlaces.slice(1)"  [routerLink]="['/', 'places', 'tab-places', 'discover', placesitem.id]" detail>
+          <ion-item *ngFor="let placesitem of listedLoadedPlaces"  [routerLink]="['/', 'places', 'tab-places', 'discover', placesitem.id]" detail>
             <ion-avatar slot="start">
               <ion-img [src]="placesitem.imageURL"></ion-img>
             </ion-avatar>

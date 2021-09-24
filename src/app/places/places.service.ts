@@ -137,23 +137,28 @@ export class PlacesService {
   }
 
   updatePlaces(placeID: string, title: string, description: string,){
-    return this.places.pipe(take(1), delay(1000), tap(placesE => {
-      const updatePlaceIndex = placesE.findIndex(pl => pl.id === placeID);
-      console.log(updatePlaceIndex);
-      const updatedPlaces = [...placesE];
-      console.log(updatedPlaces);
-      const oldPlace = updatedPlaces[updatePlaceIndex];
-      updatedPlaces[updatePlaceIndex] = new Place(
-        oldPlace.id,
-        title,
-        description,
-        oldPlace.imageURL,
-        oldPlace.price,
-        oldPlace.availabelFrom,
-        oldPlace.availableTo,
-        oldPlace.userID
+    let updatedPlaces: Place[];
+    return this.places.pipe(
+      take(1),
+      switchMap((placesE) => {
+        const updatePlaceIndex = placesE.findIndex(pl => pl.id === placeID);
+        updatedPlaces = [...placesE];
+        const oldPlace = updatedPlaces[updatePlaceIndex];
+        updatedPlaces[updatePlaceIndex] = new Place(
+          oldPlace.id,
+          title,
+          description,
+          oldPlace.imageURL,
+          oldPlace.price,
+          oldPlace.availabelFrom,
+          oldPlace.availableTo,
+          oldPlace.userID
+          );
+        return this.http.put(`https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/offered-place/${placeID}.json`,
+          { ...updatedPlaces[updatePlaceIndex], id: null}
         );
-
+      }),
+      tap(() => {
         // eslint-disable-next-line no-underscore-dangle
         this._places.next(updatedPlaces);
     }));
