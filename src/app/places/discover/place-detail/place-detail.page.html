@@ -1,29 +1,30 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button [defaultHref]="'/places/tab-places/discover' + place.id"></ion-back-button>
+      <ion-back-button defaultHref="/places/tabs/discover"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{place.title}}</ion-title>
+    <ion-title>{{ place.title }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ion-grid class="ion-no-padding">
     <ion-row>
-      <ion-col sizeSm="6" offsetSm="3">
+      <ion-col size-sm="6" offset-sm="3" class="ion-no-padding">
         <ion-img [src]="place.imageURL"></ion-img>
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col sizeSm="6" offsetSm="3" class="ion-text-center">
-        <p>{{place.description}}</p>
+      <ion-col size-sm="6" offset-sm="3" class="ion-text-center" padding>
+        <p>{{ place.description }}</p>
       </ion-col>
     </ion-row>
-    <ion-row>
-      <ion-col sizeSm="6" offsetSm="3" class="ion-text-center">
-        <ion-button class="ion-margin" (click)="OnBookingPlace()">Book</ion-button>
+    <ion-row *ngIf="isBookable">
+      <ion-col size-sm="6" offset-sm="3" class="ion-text-center">
+        <ion-button color="primary" margin (click)="OnBookingPlace()"
+          >Book</ion-button
+        >
       </ion-col>
     </ion-row>
-
   </ion-grid>
 </ion-content>

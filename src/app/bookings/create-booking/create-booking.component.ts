@@ -17,7 +17,7 @@ export class CreateBookingComponent implements OnInit {
   startDate: string;
   endDate: string;
 
-  constructor(private route: Router, private modalCtrl: ModalController) { }
+  constructor(private route: Router, private modalCtrl: ModalController, private router: Router) { }
 
   ngOnInit() {
     const availableFrom = new Date(this.selectedPlace.availabelFrom);
@@ -56,6 +56,7 @@ export class CreateBookingComponent implements OnInit {
         fromDate: new Date(this.form.value['date-from']),
         toDate: new Date(this.form.value['date-to'])
       }}, 'confirm');
+    this.router.navigateByUrl('/bookings');
   }
 
   dateValidation(){

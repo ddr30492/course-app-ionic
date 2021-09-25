@@ -20,6 +20,10 @@ export class BookingsPage implements OnInit, OnDestroy {
    this.bookingSub = this.bookingService.bookingDetails.subscribe(bookings => this.loadedBookings = bookings);
   }
 
+  ionViewWillEnter(){
+    this.bookingService.fetchBookingDetails().subscribe();
+  }
+
   onCancelBooking(bookingId: string, slidingBooking: IonItemSliding){
     slidingBooking.close();
     this.loadingCtrl.create({

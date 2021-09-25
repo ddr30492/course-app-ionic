@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { LoadingController, NavController } from '@ionic/angular';
+import { AlertController, LoadingController, NavController } from '@ionic/angular';
 import { Place } from '../../place.model';
 import { PlacesService } from '../../places.service';
 import { Subscription } from 'rxjs';
@@ -25,7 +25,8 @@ export class EditOfferPage implements OnInit, OnDestroy {
     private router: Router,
     private navCtrl: NavController,
     private placeServices: PlacesService,
-    private loadingCtrl: LoadingController) { }
+    private loadingCtrl: LoadingController,
+    private  alertCtrl: AlertController) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(paramMap => {
@@ -54,6 +55,19 @@ export class EditOfferPage implements OnInit, OnDestroy {
           })
         });
         this.isLoading = false;
+      }, error => {
+        this.alertCtrl.create({
+          header: 'An Error occured',
+          message: 'Place could not be fatched.Try Again later',
+          buttons: [{
+            text: 'Ok',
+            handler : () => {
+              this.router.navigateByUrl('/places/tab-places/offer');
+            }
+          }]
+        }).then(alertEle => {
+          alertEle.present();
+        });
       });
     });
   }

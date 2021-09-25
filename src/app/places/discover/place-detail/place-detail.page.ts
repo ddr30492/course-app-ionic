@@ -1,11 +1,12 @@
 import { Component, OnDestroy, OnInit, Output } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { NavController, ModalController, ActionSheetController, LoadingController } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NavController, ModalController, ActionSheetController, LoadingController, AlertController } from '@ionic/angular';
 import { Place } from '../../place.model';
 import { PlacesService } from '../../places.service';
 import {CreateBookingComponent} from '../../../bookings/create-booking/create-booking.component';
 import { Subscription } from 'rxjs';
 import { BookingService } from 'src/app/bookings/booking.service';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-place-detail',
@@ -15,6 +16,9 @@ import { BookingService } from 'src/app/bookings/booking.service';
 export class PlaceDetailPage implements OnInit, OnDestroy {
 
   place: Place;
+  isBookable = false;
+  placeId: string;
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -24,17 +28,42 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private modalCtrl: ModalController,
     private actionSheetCtrl: ActionSheetController,
     private bookingService: BookingService,
-    private loadingCtrl: LoadingController) { }
+    private loadingCtrl: LoadingController,
+    private alertCtrl: AlertController,
+    private router: Router,
+    private authService: AuthService
+    ) { }
 
   ngOnInit() {
+    console.log(this.place);
     this.route.paramMap.subscribe(paramMap => {
       if(!paramMap.has('placeId')){
         this.navController.navigateBack('/places/tab-places/discover');
         return;
       }
+      this.placeId = paramMap.get('placeId');
+      this.isLoading = true;
       // this.place = this.placeServices.getPlacesId(paramMap.get('placeId'));
-      this.placeSub = this.placeServices.getPlacesId(paramMap.get('placeId')).subscribe(place1 => this.place = place1);
-
+      this.placeSub = this.placeServices.getPlacesId(paramMap.get('placeId'))
+        .subscribe(place1 =>{
+          console.log(place1);
+          this.place = place1;
+          this.isBookable = place1.userID !== this.authService.userID;
+          this.isLoading = false;
+        }, error => {
+          this.alertCtrl.create({
+            header: 'An Error occured',
+            message: 'Place could not be loaded.',
+            buttons: [{
+              text: 'Ok',
+              handler: () => {
+                this.router.navigateByUrl('/places/tab-places/discover');
+              }
+            }]
+          }).then(alertEle => {
+            alertEle.present();
+          });
+        });
     });
   }
 
@@ -78,6 +107,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         }).then(loadingEle => {
           loadingEle.present();
           const data = resultData.data.bookingData;
+          console.log('data',data);
           this.bookingService.addBooking(
             this.place.id,
             this.place.title,
