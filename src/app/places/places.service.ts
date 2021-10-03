@@ -4,7 +4,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { delay, map, take, tap, switchMap, retryWhen } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { Place } from './place.model';
-
+import { PlaceLocation } from './location.model';
 
 // new Place(
 //   'p1',
@@ -45,6 +45,7 @@ interface PlaceData {
   price: number;
   title: string;
   userID: string;
+  location: PlaceLocation;
 }
 @Injectable({
   providedIn: 'root'
@@ -79,6 +80,7 @@ export class PlacesService {
               new Date(resData[key].availabelFrom),
               new Date(resData[key].availableTo),
               resData[key].userID,
+              resData[key].location
             ));
           }
         }
@@ -106,11 +108,12 @@ export class PlacesService {
         new Date(placeData.availabelFrom),
         new Date(placeData.availableTo),
         placeData.userID,
+        placeData.location
     )));
   }
 
   //create new dynamic methodfor add services
-  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date){
+  addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location: PlaceLocation){
     let generatedId: string;
     const newPlace = new Place(
       Math.random().toString(),
@@ -120,7 +123,8 @@ export class PlacesService {
       price,
       dateFrom,
       dateTo,
-      this.authService.userID
+      this.authService.userID,
+      location
     );
     // this._places.push(newPlace);
     return this.http
@@ -173,7 +177,8 @@ export class PlacesService {
           oldPlace.price,
           oldPlace.availabelFrom,
           oldPlace.availableTo,
-          oldPlace.userID
+          oldPlace.userID,
+          oldPlace.location
           );
         return this.http.put(`https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/offered-place/${placeID}.json`,
           { ...updatedPlaces[updatePlaceIndex], id: null}
