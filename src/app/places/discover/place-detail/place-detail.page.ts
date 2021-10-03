@@ -5,8 +5,9 @@ import { Place } from '../../place.model';
 import { PlacesService } from '../../places.service';
 import {CreateBookingComponent} from '../../../bookings/create-booking/create-booking.component';
 import { Subscription } from 'rxjs';
-import { BookingService } from 'src/app/bookings/booking.service';
-import { AuthService } from 'src/app/auth/auth.service';
+import { BookingService } from '../../../bookings/booking.service';
+import { AuthService } from '../../../auth/auth.service';
+import { MapModalComponent } from '../../../shared/map-modal/map-modal.component';
 
 @Component({
   selector: 'app-place-detail',
@@ -125,6 +126,20 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
       }
     });
     console.log(mode);
+  }
+
+  onShowFullMap(){
+    console.log(this.place.location.lng, this.place.location.lat);
+    this.modalCtrl.create({component: MapModalComponent,
+      componentProps: {
+        center: [this.place.location.lng, this.place.location.lat],
+        selectable: false,
+        title: this.place.location.address,
+        closeButtonText: 'Cancel'
+      }
+    }).then((modalEle) => {
+      modalEle.present();
+    });
   }
 
   ngOnDestroy(){

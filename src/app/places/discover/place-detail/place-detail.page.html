@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/places/tabs/discover"></ion-back-button>
+      <ion-back-button defaultHref="/places/tab-places/discover"></ion-back-button>
     </ion-buttons>
     <!-- using the safe navigation operator while using the http request call ex abc?.xyz or abc?.xyz?.pqr -->
     <ion-title>{{ place?.title }}</ion-title>
@@ -20,6 +20,18 @@
         <p>{{ place?.description }}</p>
       </ion-col>
     </ion-row>
+    <ion-row>
+      <ion-col size-sm="6" offset-sm="3" class="ion-text-center ion-padding">
+        <p class="address">{{ place?.location.address }}</p>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size-sm="6" offset-sm="3" class="ion-text-center">
+        <ion-img [src]="place?.location.staticMapImageUrl" class="img-place" role="button" (click)="onShowFullMap()"></ion-img>
+      </ion-col>
+    </ion-row>
+
+
     <ion-row *ngIf="isBookable">
       <ion-col size-sm="6" offset-sm="3" class="ion-text-center">
         <ion-button color="primary" margin (click)="OnBookingPlace()"

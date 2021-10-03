@@ -71,7 +71,7 @@ export class LocationPlacedComponent implements OnInit {
 
   private getImageMap(lat: number, lng: number, zoom: number){
     // eslint-disable-next-line max-len
-    return `https://api.mapbox.com/styles/v1/mapbox/light-v10/static/pin-s-l+ff0000(${lng},${lat})/${lng},${lat},14/500x300?access_token=${environment.mapbox.accessToken}`;
+    return `https://api.mapbox.com/styles/v1/mapbox/light-v10/static/pin-s-l+ff0000(${lng},${lat})/${lng},${lat},${zoom}/500x300?access_token=${environment.mapbox.accessToken}`;
   }
 
 }
