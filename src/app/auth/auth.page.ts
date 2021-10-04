@@ -51,12 +51,16 @@ export class AuthPage implements OnInit {
 
     const email = form.value.email;
     const password = form.value.password;
-    console.log(email, password);
 
     if(this.isLogin){
       //send request to the login server
+      console.log('in if');
     }else{
+      console.log('in else');
       //send request to the signup server
+      this.authService.onSignUp(email, password).subscribe((resData) => {
+        console.log(resData);
+      });
     }
   }
 }

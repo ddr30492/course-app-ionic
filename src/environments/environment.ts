@@ -6,7 +6,8 @@ export const environment = {
   production: false,
   mapbox: {
     accessToken: 'pk.eyJ1IjoiZGRyMzA0OTIiLCJhIjoiY2t1MjJpcndpM3FteTJvbnE3MmFwNnozNSJ9.OOSeVSNjtfaO7NBXvixpfA'
-  }
+  },
+  fireBaseAPIKey: 'AIzaSyAxZ8RWZwSWfAAbZo9qhgxk47VrDEitgk0'
 
 };
 
