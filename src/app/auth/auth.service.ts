@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 
-interface AuthResponseData{
+export interface AuthResponseData{
   kind: string;
   idToken: string;
   email: string;
@@ -43,9 +43,15 @@ export class AuthService {
     );
   }
 
-  onLogin(){
+  onLogin(email: string, password: string){
     // eslint-disable-next-line no-underscore-dangle
-    this._isAutheticateUser = true;
+    // this._isAutheticateUser = true;
+    return this.http.post<AuthResponseData>(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.fireBaseAPIKey}`, {
+       email,
+       password
+      }
+    );
   }
 
   onLogOut(){

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, AlertController } from '@ionic/angular';
 import { NgForm } from '@angular/forms';
-import { AuthService } from './auth.service';
+import { Observable } from 'rxjs';
+import { AuthResponseData, AuthService } from './auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -27,12 +28,17 @@ export class AuthPage implements OnInit {
   /* login method for loading controller crrate and dismis on timeout */
   authenticate(email: string, password: string){
     this.isLoading = true;
-    this.authService.onLogin();
     this.loadingCtrl
     .create({keyboardClose: true, message: 'Logging In...'})
     .then(loadingEl => {
       loadingEl.present();
-      this.authService.onSignUp(email, password).subscribe((resData) => {
+      let authObs: Observable<AuthResponseData>;
+      if(this.isLogin){
+        authObs = this.authService.onLogin(email, password);
+      }else{
+        authObs = this.authService.onSignUp(email, password);
+      }
+      authObs.subscribe((resData) => {
         console.log(resData);
         this.isLoading = false;
         loadingEl.dismiss();
@@ -43,6 +49,10 @@ export class AuthPage implements OnInit {
         let message = 'Could not sign you up, please try again later';
         if(code === 'EMAIL_EXISTS'){
           message = 'This email address exists already';
+        } else if(code ==='EMAIL_NOT_FOUND'){
+          message = 'This email address is not found, Please enter valid email address';
+        }else if(code === 'INVALID_PASSWORD'){
+          message = 'Password is not correct';
         }
         this.showAlert(message);
       });
