@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, from } from 'rxjs';
 import  { map, tap } from 'rxjs/operators';
+import { Storage } from '@Capacitor/storage';
 import { environment } from '../../environments/environment';
 import { User } from './user.model';
 
@@ -48,6 +49,36 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+
+  autoLogin(){
+    return from(Storage.get({key: 'authdata'})).pipe(
+      map(storeData => {
+        if(!storeData || !storeData.value){
+          return null;
+        }
+        const parsedData = JSON.parse(storeData.value) as {
+          userId: string;
+          token: string;
+          tokenExpirationDate: string;
+          email: string;
+        };
+        const expirationTime = new Date(parsedData.tokenExpirationDate);
+        if(expirationTime <= new Date()){
+          return null;
+        }
+        const user = new User(parsedData.userId, parsedData.email, parsedData.token, expirationTime);
+        return user;
+      }),
+      tap(user => {
+        if(user){
+          // eslint-disable-next-line no-underscore-dangle
+          this._user.next(user);
+        }
+      }),
+      map(user => !!user)
+    );
+  }
+
   onSignUp(email: string, password: string){
     return this.http.post<AuthResponseData>(
       `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.fireBaseAPIKey}`,{
@@ -70,7 +101,8 @@ export class AuthService {
     return this.http.post<AuthResponseData>(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.fireBaseAPIKey}`, {
        email,
-       password
+       password,
+       returnSecureToken: true
       }
     ).pipe(
       tap(
@@ -82,11 +114,20 @@ export class AuthService {
   onLogOut(){
     // eslint-disable-next-line no-underscore-dangle
     this._user.next(null);
+    Storage.remove({key: 'authdata'});
   }
 
   private setUserData(userData: AuthResponseData){
     const expirationTime = new Date(new Date().getTime() + (+userData.expiresIn * 1000));
     // eslint-disable-next-line no-underscore-dangle
     this._user.next(new User(userData.localId, userData.email, userData.idToken, expirationTime));
+
+    this.storeAuthData(userData.localId, userData.idToken, expirationTime.toISOString(), userData.email);
+  }
+
+  private storeAuthData(userId: string, token: string, tokenExpirationDate: string, email: string){
+    // eslint-disable-next-line object-shorthand
+    const data = JSON.stringify({userId: userId, token: token, tokenExpirationDate: tokenExpirationDate, email: email});
+    Storage.set({key: 'authdata', value: data});
   }
 }

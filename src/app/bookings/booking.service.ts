@@ -32,7 +32,7 @@ export class BookingService{
   }
 
   fetchBookingDetails(){
-    return this.authService.userID.pipe(switchMap(userId => {
+    return this.authService.userID.pipe(take(1), switchMap(userId => {
       console.log(userId);
         if(!userId){
           throw new Error('User not found!!!');
