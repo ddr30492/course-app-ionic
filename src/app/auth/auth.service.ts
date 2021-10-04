@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, from } from 'rxjs';
 import  { map, tap } from 'rxjs/operators';
 import { Storage } from '@Capacitor/storage';
@@ -18,9 +18,10 @@ export interface AuthResponseData{
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
 
   private _user = new BehaviorSubject<User>(null);
+  private activeLogoutTimer: any;
   get userID(){
     // eslint-disable-next-line no-underscore-dangle
     return this._user.asObservable().pipe(
@@ -73,6 +74,7 @@ export class AuthService {
         if(user){
           // eslint-disable-next-line no-underscore-dangle
           this._user.next(user);
+          this.autoLogout(user.tokenDuration);
         }
       }),
       map(user => !!user)
@@ -112,16 +114,30 @@ export class AuthService {
   }
 
   onLogOut(){
+    if(this.activeLogoutTimer){
+      clearTimeout(this.activeLogoutTimer);
+    }
     // eslint-disable-next-line no-underscore-dangle
     this._user.next(null);
     Storage.remove({key: 'authdata'});
   }
 
+  private autoLogout(duration: number){
+    if(this.activeLogoutTimer){
+      clearTimeout(this.activeLogoutTimer);
+    }
+    this.activeLogoutTimer = setTimeout(() => {
+      this.onLogOut();
+    },duration);
+  }
+
+
   private setUserData(userData: AuthResponseData){
     const expirationTime = new Date(new Date().getTime() + (+userData.expiresIn * 1000));
-    // eslint-disable-next-line no-underscore-dangle
-    this._user.next(new User(userData.localId, userData.email, userData.idToken, expirationTime));
-
+    const user = new User(userData.localId, userData.email, userData.idToken, expirationTime);
+      // eslint-disable-next-line no-underscore-dangle
+    this._user.next(user);
+    this.autoLogout(user.tokenDuration);
     this.storeAuthData(userData.localId, userData.idToken, expirationTime.toISOString(), userData.email);
   }
 
@@ -129,5 +145,12 @@ export class AuthService {
     // eslint-disable-next-line object-shorthand
     const data = JSON.stringify({userId: userId, token: token, tokenExpirationDate: tokenExpirationDate, email: email});
     Storage.set({key: 'authdata', value: data});
+  }
+
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  ngOnDestroy(){
+    if(this.activeLogoutTimer){
+      clearTimeout(this.activeLogoutTimer);
+    }
   }
 }

@@ -13,4 +13,13 @@ export class User{
     // eslint-disable-next-line no-underscore-dangle
     return this._token;
   }
+
+  get tokenDuration(){
+    if(!this.token){
+      return 0;
+    }
+    // return 10000;
+    console.log(this.tokenExpirationDate.getTime() - new Date().getTime());
+    return this.tokenExpirationDate.getTime() - new Date().getTime();
+  }
 }
