@@ -115,37 +115,41 @@ export class PlacesService {
   //create new dynamic methodfor add services
   addPlace(title: string, description: string, price: number, dateFrom: Date, dateTo: Date, location: PlaceLocation){
     let generatedId: string;
-    const newPlace = new Place(
-      Math.random().toString(),
-      title,
-      description,
-      'https://upload.wikimedia.org/wikipedia/commons/f/fc/2014_Morris-Jumel_Mansion_from_southwest.jpg',
-      price,
-      dateFrom,
-      dateTo,
-      this.authService.userID,
-      location
-    );
-    // this._places.push(newPlace);
-    return this.http
-    .post<{name: string}>('https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/offered-place.json',
+    let newPlace: Place;
+    return this.authService.userID.pipe(take(1), switchMap(userId => {
+      if(!userId){
+        throw new Error('No user id found!!!');
+      }
+      newPlace = new Place(
+        Math.random().toString(),
+        title,
+        description,
+        'https://upload.wikimedia.org/wikipedia/commons/f/fc/2014_Morris-Jumel_Mansion_from_southwest.jpg',
+        price,
+        dateFrom,
+        dateTo,
+        userId,
+        location
+      );
+      return this.http
+      .post<{name: string}>('https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/offered-place.json',
       {
         ...newPlace,
         id: null
+      });
+    }),switchMap(resData => {
+        console.log(resData);
+        generatedId = resData.name;
+        return this.places;
+      }),
+      take(1),
+      tap((placesss) => {
+        newPlace.id = generatedId;
+        // eslint-disable-next-line no-underscore-dangle
+        this._places.next(placesss.concat(newPlace));
       })
-      .pipe(
-        switchMap(resData => {
-          console.log(resData);
-          generatedId = resData.name;
-          return this.places;
-        }),
-        take(1),
-        tap((placesss) => {
-          newPlace.id = generatedId;
-          // eslint-disable-next-line no-underscore-dangle
-          this._places.next(placesss.concat(newPlace));
-        })
-      );
+    );
+    // this._places.push(newPlace);
     // return this.places.pipe(take(1), delay(1000), tap((placesss) => {
     //     // eslint-disable-next-line no-underscore-dangle
     //     this._places.next(placesss.concat(newPlace));

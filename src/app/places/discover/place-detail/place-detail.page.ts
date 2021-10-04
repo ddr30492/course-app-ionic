@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { BookingService } from '../../../bookings/booking.service';
 import { AuthService } from '../../../auth/auth.service';
 import { MapModalComponent } from '../../../shared/map-modal/map-modal.component';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-place-detail',
@@ -44,27 +45,33 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
       }
       this.placeId = paramMap.get('placeId');
       this.isLoading = true;
-      // this.place = this.placeServices.getPlacesId(paramMap.get('placeId'));
-      this.placeSub = this.placeServices.getPlacesId(paramMap.get('placeId'))
-        .subscribe(place1 =>{
-          console.log(place1);
-          this.place = place1;
-          this.isBookable = place1.userID !== this.authService.userID;
-          this.isLoading = false;
-        }, error => {
-          this.alertCtrl.create({
-            header: 'An Error occured',
-            message: 'Place could not be loaded.',
-            buttons: [{
-              text: 'Ok',
-              handler: () => {
-                this.router.navigateByUrl('/places/tab-places/discover');
-              }
-            }]
-          }).then(alertEle => {
-            alertEle.present();
-          });
+      let fetchUserId: string;
+      this.authService.userID.pipe(switchMap(userId => {
+        if(!userId){
+          throw new Error('Found No Users');
+        }
+        fetchUserId = userId;
+        return this.placeServices.getPlacesId(paramMap.get('placeId'));
+      })).subscribe(place1 =>{
+        console.log(place1);
+        this.place = place1;
+        this.isBookable = place1.userID !== fetchUserId;
+        this.isLoading = false;
+      }, error => {
+        this.alertCtrl.create({
+          header: 'An Error occured',
+          message: 'Place could not be loaded.',
+          buttons: [{
+            text: 'Ok',
+            handler: () => {
+              this.router.navigateByUrl('/places/tab-places/discover');
+            }
+          }]
+        }).then(alertEle => {
+          alertEle.present();
         });
+      });;
+      // this.place = this.placeServices.getPlacesId(paramMap.get('placeId'));
     });
   }
 

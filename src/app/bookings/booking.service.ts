@@ -32,18 +32,22 @@ export class BookingService{
   }
 
   fetchBookingDetails(){
-    return this.http
-      .get<{[key: string]: BookingData}>('https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/booked-place.json')
-      .pipe(
-        map((resData) => {
+    return this.authService.userID.pipe(switchMap(userId => {
+      console.log(userId);
+        if(!userId){
+          throw new Error('User not found!!!');
+        }
+        return this.http
+        .get<{[key: string]: BookingData}>(
+          `https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/booked-place.json?userId="${userId}"`);
+        }),map((resData) => {
           console.log(resData);
           const bookings = [];
           console.log(resData);
           for(const key in resData){
             if(resData.hasOwnProperty(key)){
               console.log(resData[key].userId);
-              if(resData[key].userId === this.authService.userID){
-                const resMData = bookings.push(new Booking(
+              bookings.push(new Booking(
                   key,
                   resData[key].placeId,
                   resData[key].userId,
@@ -55,7 +59,6 @@ export class BookingService{
                   new Date(resData[key].bookedFrom),
                   new Date(resData[key].bookedTo),
                 ));
-              }
             }
           }
           return bookings;
@@ -76,23 +79,30 @@ export class BookingService{
     dateTo: Date)
     {
       let generatedId: string;
-      const newBooking= new Booking(
-        Math.random().toString(),
-        placeID,
-        this.authService.userID,
-        placeImage,
-        firstName,
-        lastName,
-        placeTitle,
-        guestNumber,
-        dateFrom,
-        dateTo
-      );
-      return this.http
-      .post<{name: string}>('https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/booked-place.json', {
-        ...newBooking, id:null
-      })
-      .pipe(
+      let newBooking: Booking;
+      return this.authService.userID.pipe(
+        take(1),
+        switchMap(userId => {
+          if(!userId){
+            throw new Error('No user id found!!!');
+          }
+          newBooking= new Booking(
+            Math.random().toString(),
+            placeID,
+            userId,
+            placeImage,
+            firstName,
+            lastName,
+            placeTitle,
+            guestNumber,
+            dateFrom,
+            dateTo
+          );
+          return this.http
+          .post<{name: string}>('https://ionic-angular-bnb-3a453-default-rtdb.firebaseio.com/booked-place.json', {
+            ...newBooking, id:null
+          });
+        }),
         switchMap(resData => {
           console.log(resData);
           generatedId = resData.name;
